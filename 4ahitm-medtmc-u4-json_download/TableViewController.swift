@@ -27,12 +27,18 @@ class TableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "todo", for: indexPath)
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "todo", for: indexPath) as! TableViewCell
         let todo = model.todos[indexPath.row]
 
-        cell.textLabel?.text = todo.title
-        cell.detailTextLabel?.text = "id: \(todo.id), userId: \(todo.userId), completed: \(todo.completed)"
+        cell.title?.text = todo.title
+        cell.info?.text = "id: \(todo.id), userId: \(todo.userId)"
+        cell.switch.isOn = todo.completed
+
+        if todo.completed {
+            cell.completedLabel?.text = "completed"
+        } else {
+            cell.completedLabel?.text = "uncompleted"
+        }
 
         return cell
     }
