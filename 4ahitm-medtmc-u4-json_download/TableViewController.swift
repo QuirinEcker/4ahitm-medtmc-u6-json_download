@@ -9,9 +9,15 @@ import UIKit
 
 class TableViewController: UITableViewController {
     var model = Model()
+    var queue = DispatchQueue(label: "queue1")
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("before")
+        queue.async {
+            self.download()
+        }
+        print("submitted")
     }
 
     // MARK: - Table view data source
@@ -41,6 +47,41 @@ class TableViewController: UITableViewController {
         }
 
         return cell
+    }
+    
+    func download() {
+        let model = Model()
+        
+        if let url = URL(string: "http://localhost:3000/todos") {
+            if let data = try? Data(contentsOf: url) {
+                if let json = try? JSONSerialization.jsonObject(with: data, options: []) {
+                    if let array = json as? [Any] {
+                        for obj in array {
+                            if let dict = obj as? [String: Any] {
+                                let todo = Todo(
+                                    id: dict["id"] as! Int,
+                                    userId: dict["userId"] as! Int,
+                                    title: dict["title"] as! String,
+                                    completed: dict["completed"] as! Bool
+                                )
+                                
+                                model.todos.append(todo)
+                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            print("title downloaded:\(model)")
+                            self.model = model
+                            self.tableView.reloadData()
+                        }
+                    }
+                }
+            } else {
+                print("failed to download")
+            }
+        } else {
+            print("sinnlose URL")
+        }
     }
     
 
